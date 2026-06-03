@@ -74,13 +74,15 @@
 
             const data = await response.json();
 
-            if (response.ok) {
-                // 1. Guardamos el Token JWT en el LocalStorage del navegador
-                localStorage.setItem('token', data.token);
-                
-                // 2. 🔥 ¡REDIRECCIÓN REAL AUTOMÁTICA!
-                // Al estar en la misma carpeta public, esto te mandará directo a la otra pantalla
-                window.location.href = 'dashboard.html'; 
+           if (response.ok) {
+    // Guardamos el token y los datos del usuario que devuelve tu API
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('usuario', data.usuario.nombre || 'Usuario');
+    localStorage.setItem('rol', data.usuario.rol || 'ESTUDIANTE'); // Captura el rol
+    
+    // Redirección inmediata al panel unificado
+    window.location.href = 'dashboard.html'; 
+
             } else {
                 // Si las credenciales están mal o hay error 500, mostramos el mensaje de tu API
                 errorAlert.innerText = data.error || 'Credenciales incorrectas o error en el servidor.';
