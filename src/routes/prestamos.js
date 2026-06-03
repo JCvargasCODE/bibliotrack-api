@@ -47,15 +47,17 @@ router.get('/', verificarToken, verificarRol(['ADMIN', 'BIBLIOTECARIO']), async 
 // ======================================================================
 /**
  * @swagger
- * /api/prestamos/mis-prestamos:
- *   get:
- *     summary: Obtener el historial de préstamos del usuario autenticado
- *     tags: [Préstamos]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Historial del estudiante obtenido con éxito
+ * /api/prestamos:
+ * get:
+ * summary: Obtener todos los préstamos del sistema (Admin/Bibliotecario)
+ * tags: [Préstamos]
+ * security:
+ * - bearerAuth: []
+ * responses:
+ * 200:
+ * description: Lista global obtenida con éxito
+ * 401:
+ * description: No autorizado
  */
 router.get('/mis-prestamos', verificarToken, async (req, res) => {
     try {
