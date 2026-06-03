@@ -2,36 +2,183 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BiblioTrack - Panel Principal</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
-<body class="bg-[#0f172a] text-slate-200 p-8">
-    <div class="max-w-4xl mx-auto">
-        <div class="flex justify-between items-center mb-8">
-            <h1 class="text-3xl font-bold text-indigo-400">📚 Panel de Préstamos BiblioTrack</h1>
-            <button onclick="localStorage.clear(); window.location.href='index.html'" class="px-4 py-2 bg-red-600 rounded-lg text-sm">Cerrar Sesión</button>
+<body class="bg-[#0f172a] text-slate-100 min-h-screen flex flex-col">
+
+    <nav class="bg-[#1e293b] border-b border-slate-800 px-6 py-4 flex justify-between items-center shadow-md">
+        <div class="flex items-center space-x-3">
+            <div class="bg-indigo-600 p-2 rounded-lg text-white">
+                <i data-lucide="library" class="w-6 h-6"></i>
+            </div>
+            <span class="text-2xl font-bold tracking-tight text-indigo-400">BiblioTrack</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div class="text-right hidden sm:block">
+                <p id="userEmail" class="text-sm font-medium text-slate-300">Cargando usuario...</p>
+                <p class="text-xs text-indigo-400">Rol: Administrador</p>
+            </div>
+            <button onclick="cerrarSesion()" class="flex items-center space-x-2 px-4 py-2 bg-red-600/20 hover:bg-red-600 text-red-200 hover:text-white border border-red-500/30 rounded-lg text-sm font-medium transition-all">
+                <i data-lucide="log-out" class="w-4 h-4"></i>
+                <span>Cerrar Sesión</span>
+            </button>
+        </div>
+    </nav>
+
+    <main class="flex-1 p-6 max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-gradient-to-r from-indigo-900/40 to-slate-800 p-6 rounded-xl border border-indigo-500/20 shadow-lg">
+                <h2 class="text-2xl font-bold text-white mb-2">¡Bienvenido al Panel de Control Distribuidio!</h2>
+                <p class="text-slate-300 text-sm leading-relaxed">
+                    Este sistema está procesando transacciones concurrentes en Supabase y transmitiendo eventos asíncronos mediante canales globales de <span class="text-indigo-400 font-semibold">Upstash Redis Pub/Sub</span>.
+                </p>
+            </div>
+
+            <div class="bg-[#1e293b] rounded-xl p-6 border border-slate-800 shadow-xl">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-slate-200">Catálogo de Libros Disponibles</h3>
+                    <span class="px-2.5 py-1 bg-slate-700 text-slate-300 rounded-full text-xs font-medium">Supabase DB</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm text-slate-300">
+                        <thead class="bg-[#0f172a] text-slate-400 uppercase text-xs tracking-wider">
+                            <tr>
+                                <th class="p-3 rounded-l-lg">Código Libro</th>
+                                <th class="p-3">Título</th>
+                                <th class="p-3">Estado</th>
+                                <th class="p-3 text-center rounded-r-lg">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800">
+                            <tr class="hover:bg-slate-800/50 transition-colors">
+                                <td class="p-3 font-mono text-xs text-indigo-400">LIB-90210</td>
+                                <td class="p-3 font-medium text-white">Sistemas Distribuidos Modernos</td>
+                                <td class="p-3"><span class="px-2 py-0.5 bg-green-500/10 text-green-400 text-xs rounded-full border border-green-500/20">Disponible</span></td>
+                                <td class="p-3 text-center"><button onclick="solicitarPrestamo('LIB-90210', 'Sistemas Distribuidos Modernos')" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded-md transition-all shadow-md shadow-indigo-600/10">Simular Préstamo</button></td>
+                            </tr>
+                            <tr class="hover:bg-slate-800/50 transition-colors">
+                                <td class="p-3 font-mono text-xs text-indigo-400">LIB-40552</td>
+                                <td class="p-3 font-medium text-white">Patrones de Arquitectura de Software</td>
+                                <td class="p-3"><span class="px-2 py-0.5 bg-green-500/10 text-green-400 text-xs rounded-full border border-green-500/20">Disponible</span></td>
+                                <td class="p-3 text-center"><button onclick="solicitarPrestamo('LIB-40552', 'Patrones de Arquitectura de Software')" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded-md transition-all shadow-md shadow-indigo-600/10">Simular Préstamo</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
-        <div id="liveAlerts" class="space-y-2 mb-6"></div>
+        <div class="space-y-6">
+            <div class="bg-[#1e293b] rounded-xl p-6 border border-slate-800 shadow-xl flex flex-col h-[500px]">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="relative flex h-3 w-3">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                        </span>
+                        <h3 class="font-semibold text-slate-200">Eventos de Redis Pub/Sub</h3>
+                    </div>
+                    <span class="text-xs bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded border border-indigo-500/20">Socket.io Monitoreo</span>
+                </div>
 
-        <div class="bg-[#1e293b] p-6 rounded-xl border border-slate-800">
-            <p class="text-slate-400">¡Bienvenido al sistema distribuido! Aquí aparecerán las alertas automáticas procesadas por Upstash Redis cuando se registre un préstamo o devolución en la API.</p>
+                <div id="liveAlertsContainer" class="flex-1 overflow-y-auto space-y-3 pr-2 text-sm text-slate-400">
+                    <div class="p-3 bg-[#0f172a] rounded-lg border border-slate-800 text-center text-xs text-slate-500 italic">
+                        Esperando transacciones de la API... Escuchando canales Upstash de forma asíncrona.
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
+
+    </main>
 
     <script>
-        // Validar protección de ruta frontend
-        if (!localStorage.getItem('token')) window.location.href = 'index.html';
+        // 🔒 SEGURIDAD FRONTEND: Si no hay token, lo saca de la página de inmediato
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'index.html';
+        } else {
+            // Mostrar de forma interactiva que reconoce tu sesión en la esquina superior
+            document.getElementById('userEmail').innerText = 'Usuario Autenticado';
+        }
 
-        // Conectamos con el WebSocket del backend
+        // 🔌 CONEXIÓN CON WEB_SOCKETS (SOCKET.IO)
         const socket = io();
 
-        // Escuchamos los eventos que el suscriptor de Redis captura y reenvía
+        // 📡 Escucha el evento que el suscriptor de Redis captura y reenvía por socket.io
         socket.on('notificacion:prestamo', (data) => {
-            const box = document.getElementById('liveAlerts');
-            box.innerHTML += `<div class="p-4 bg-indigo-500/20 border border-indigo-500 text-indigo-200 rounded-lg animate-pulse">${data.texto}</div>`;
+            agregarAlertaEnPantalla(data.texto, 'indigo');
         });
+
+        socket.on('notificacion:devolucion', (data) => {
+            agregarAlertaEnPantalla(data.texto, 'emerald');
+        });
+
+        // Función dinámica para pintar los cuadritos de notificación con efectos de transición
+        function agregarAlertaEnPantalla(mensaje, color) {
+            const container = document.getElementById('liveAlertsContainer');
+            
+            // Si es el primer mensaje, limpiamos el texto de "esperando..."
+            if(container.innerText.includes('Esperando transacciones')) {
+                container.innerHTML = '';
+            }
+
+            const alertHtml = `
+                <div class="p-4 rounded-xl border bg-slate-900 shadow-md transition-all transform scale-100 animate-fadeIn border-${color}-500/30">
+                    <div class="flex space-x-3">
+                        <div class="p-1.5 rounded-lg bg-${color}-500/10 text-${color}-400 h-fit">
+                            <i data-lucide="bell" class="w-4 h-4"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Evento Redis Capturado</p>
+                            <p class="text-slate-200 text-sm">${mensaje}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('afterbegin', alertHtml);
+            lucide.createIcons(); // Recarga los iconos dinámicos
+        }
+
+        // 🚀 ACCIÓN: Enviar petición de simulación de préstamo a la API REST de Render
+        async function solicitarPrestamo(libroId, tituloLibro) {
+            try {
+                const res = await fetch('https://bibliotrack-api.onrender.com/api/prestamos', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ libroId: libroId })
+                });
+
+                if (!res.ok) {
+                    const data = await res.json();
+                    alert(`Error en reglas de negocio: ${data.error || 'No autorizado'}`);
+                }
+                // Nota: Si la respuesta es exitosa (201), el mensaje saltará solo en la barra derecha
+                // gracias al flujo distribuido: API -> Redis Pub -> Suscriptor -> Socket.io -> Pantalla.
+            } catch (err) {
+                console.error(err);
+                alert('Error al conectar con la API de préstamos.');
+            }
+        }
+
+        function cerrarSesion() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        // Inicializar los iconos estáticos de la página
+        lucide.createIcons();
     </script>
 </body>
 </html>
