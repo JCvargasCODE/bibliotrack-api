@@ -1,0 +1,48 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Rol {
+  ADMIN
+  BIBLIOTECARIO
+  ESTUDIANTE
+}
+
+model Usuario {
+  id        String     @id @default(uuid())
+  nombre    String
+  email     String     @unique
+  password  String
+  rol       Rol        @default(ESTUDIANTE)
+  createdAt DateTime   @default(now())
+  prestamos Prestamo[] // Relación: Un usuario puede tener muchos préstamos
+}
+
+model Libro {
+  id          String     @id @default(uuid())
+  titulo      String
+  autor       String
+  isbn        String     @unique
+  stock       Int        @default(1)
+  disponibles Int        @default(1)
+  createdAt   DateTime   @default(now())
+  prestamos   Prestamo[] // Relación: Un libro puede estar en muchos préstamos
+}
+
+model Prestamo {
+  id              String    @id @default(uuid())
+  usuarioId       String
+  libroId         String
+  fechaPrestamo   DateTime  @default(now())
+  fechaDevolucion DateTime? // Es opcional porque al inicio no está devuelto
+  estado          String    @default("ACTIVO") // ACTIVO, DEVUELTO, ATRASADO
+
+  // Relaciones matemáticas/físicas con las otras tablas
+  usuario         Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  libro           Libro     @relation(fields: [libroId], references: [id], onDelete: Cascade)
+}
