@@ -29,10 +29,10 @@ io.on('connection', (socket) => {
 });
 
 // 4. Forzar el encendido del servidor y mantener el proceso de Node activo
-server.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, () => {
     console.log(`==================================================`);
     console.log(`📚 BIBLIOTRACK API LEVANTADA CON ÉXITO`);
-    console.log(`🚀 Servidor escuchando en: http://localhost:${PORT}`);
+    console.log(`🚀 Servidor escuchando en el puerto: ${PORT}`);
     console.log(`==================================================`);
 });
 
