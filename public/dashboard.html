@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>BiblioTrack - Panel Principal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body class="bg-[#0f172a] text-slate-200 p-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-indigo-400">📚 Panel de Préstamos BiblioTrack</h1>
+            <button onclick="localStorage.clear(); window.location.href='index.html'" class="px-4 py-2 bg-red-600 rounded-lg text-sm">Cerrar Sesión</button>
+        </div>
+
+        <div id="liveAlerts" class="space-y-2 mb-6"></div>
+
+        <div class="bg-[#1e293b] p-6 rounded-xl border border-slate-800">
+            <p class="text-slate-400">¡Bienvenido al sistema distribuido! Aquí aparecerán las alertas automáticas procesadas por Upstash Redis cuando se registre un préstamo o devolución en la API.</p>
+        </div>
+    </div>
+
+    <script>
+        // Validar protección de ruta frontend
+        if (!localStorage.getItem('token')) window.location.href = 'index.html';
+
+        // Conectamos con el WebSocket del backend
+        const socket = io();
+
+        // Escuchamos los eventos que el suscriptor de Redis captura y reenvía
+        socket.on('notificacion:prestamo', (data) => {
+            const box = document.getElementById('liveAlerts');
+            box.innerHTML += `<div class="p-4 bg-indigo-500/20 border border-indigo-500 text-indigo-200 rounded-lg animate-pulse">${data.texto}</div>`;
+        });
+    </script>
+</body>
+</html>
