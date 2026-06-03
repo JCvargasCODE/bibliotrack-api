@@ -3,8 +3,7 @@ const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const { verificarToken, verificarRol } = require('../middlewares/authMiddleware');
-const { pubClient } = require('../redis/client'); // Importamos las conexiones de Upstash Redis
-
+const { pubClient } = require('../subscribers/notificaciones'); // ✅ NUEVA RUTA INTEGRADA
 // ======================================================================
 // 1. GET /api/prestamos -> LISTA GLOBAL (ADMIN/BIBLIOTECARIO)
 // ======================================================================
