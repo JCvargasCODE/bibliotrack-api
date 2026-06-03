@@ -1,3 +1,6 @@
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpecs = require('./swagger/config');
+
 const express = require('express');
 const dotenv = require('dotenv');
 
@@ -12,7 +15,8 @@ const app = express();
 
 // 2. Middlewares globales obligatorios (Siempre ARRIBA de las rutas)
 app.use(express.json());
-
+// Ruta para la Documentación de la API
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 // 3. Enlazar las rutas con sus respectivos prefijos
 app.use('/api/auth', authRoutes);
 app.use('/api/prestamos', prestamosRoutes); 

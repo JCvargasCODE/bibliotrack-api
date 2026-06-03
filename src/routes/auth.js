@@ -56,6 +56,35 @@ router.post('/register', async (req, res) => {
         return res.status(500).json({ error: "Error interno del servidor al registrar usuario." });
     }
 });
+///
+/**
+ * @swagger
+ * /api/auth/login:
+ * post:
+ * summary: Iniciar sesión de usuario
+ * tags: [Autenticación]
+ * requestBody:
+ * required: true
+ * content:
+ * application/json:
+ * schema:
+ * type: object
+ * required:
+ * - email
+ * - password
+ * properties:
+ * email:
+ * type: string
+ * example: juancarlos@upds.edu.bo
+ * password:
+ * type: string
+ * example: 123456
+ * responses:
+ * 200:
+ * description: Login exitoso, devuelve el token JWT
+ * 401:
+ * description: Credenciales incorrectas
+ */
 // ==========================================
 // ENDPOINT: POST /api/auth/login
 // ==========================================

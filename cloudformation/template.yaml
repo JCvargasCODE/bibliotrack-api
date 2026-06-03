@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: IaC - Infraestructura de AWS para la API distribuida de BiblioTrack.
+
+Resources:
+  BiblioTrackApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src/server.handler
+      Runtime: nodejs18.x
+      CodeUri: .
+      MemorySize: 512
+      Timeout: 30
+      Environment:
+        Variables:
+          DATABASE_URL: "{{resolve:secretsmanager:BiblioTrackDB:SecretString:DATABASE_URL}}"
+          JWT_SECRET: "{{resolve:secretsmanager:BiblioTrackJWT:SecretString:JWT_SECRET}}"
+      Events:
+        ProxyApiGreedy:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+
+Outputs:
+  ApiUrl:
+    Description: "URL de la API en el entorno de AWS"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
