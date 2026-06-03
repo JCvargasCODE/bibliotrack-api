@@ -1,3 +1,4 @@
+const { iniciarSuscriptor } = require('./subscribers/notificaciones');
 const http = require('http');
 const socketIo = require('socket.io');
 const app = require('./app');
@@ -15,6 +16,8 @@ const io = socketIo(server, {
         methods: ["GET", "POST"]
     }
 });
+// Arranca la escucha asíncrona de Redis Pub/Sub enlazada a Socket.io
+iniciarSuscriptor(io);
 
 // Compartir la instancia de io de forma global
 app.set('io', io);
